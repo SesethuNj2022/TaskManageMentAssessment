@@ -5,7 +5,6 @@ using TaskManagementApi.DTOs;
 using TaskManagementApi.Models;
 using TaskStatus = TaskManagementApi.Models.TaskStatus;
 
-
 namespace TaskManagementApi.Controllers
 {
     [ApiController]
@@ -19,6 +18,7 @@ namespace TaskManagementApi.Controllers
             _context = context;
         }
 
+
         [HttpGet]
         public async Task<IActionResult> GetTasks(
             string? search,
@@ -30,7 +30,7 @@ namespace TaskManagementApi.Controllers
                 .Include(t => t.Assignee)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(search))
+            if (!string.IsNullOrWhiteSpace(search))
                 query = query.Where(t => t.Title != null && t.Title.Contains(search));
 
             if (status.HasValue)
@@ -47,6 +47,7 @@ namespace TaskManagementApi.Controllers
             return Ok(tasks);
         }
 
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTask(int id)
         {
@@ -55,42 +56,84 @@ namespace TaskManagementApi.Controllers
                 .FirstOrDefaultAsync(t => t.Id == id);
 
             if (task == null)
-                return NotFound();
+            {
+                return NotFound(new
+                {
+                    message = $"Task with ID {id} was not found."
+                });
+            }
 
             return Ok(task);
         }
 
-     [HttpPost]
-public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
-{
-    if (dto == null)
-        return BadRequest("Invalid request body");
 
-    var task = new TaskItem
-    {
-        Title = dto.Title ?? string.Empty,
-        Description = dto.Description ?? string.Empty,
-        Priority = dto.Priority,
-        AssigneeId = dto.AssigneeId,
-        Status = TaskStatus.Todo
-    };
+        [HttpPost]
+        public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
+        {
+            if (dto == null)
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid request body."
+                });
+            }
 
-    _context.Tasks.Add(task);
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                return BadRequest(new
+                {
+                    message = "Title is required."
+                });
+            }
 
-    await _context.SaveChangesAsync();
+            var task = new TaskItem
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Priority = dto.Priority,
+                AssigneeId = dto.AssigneeId,
+                Status = TaskStatus.Todo
+            };
 
-    return Ok(task);
-}
+            _context.Tasks.Add(task);
+
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(
+                nameof(GetTask),
+                new { id = task.Id },
+                task
+            );
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(int id, UpdateTaskDto dto)
         {
+            if (dto == null)
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid request body."
+                });
+            }
+
             var task = await _context.Tasks.FindAsync(id);
 
             if (task == null)
-                return NotFound();
+            {
+                return NotFound(new
+                {
+                    message = $"Task with ID {id} was not found."
+                });
+            }
 
-            if (string.IsNullOrEmpty(dto.Title))
-                return BadRequest("Title is required");
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                return BadRequest(new
+                {
+                    message = "Title is required."
+                });
+            }
 
             task.Title = dto.Title;
             task.Description = dto.Description;
@@ -103,13 +146,19 @@ public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
             return NoContent();
         }
 
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
             var task = await _context.Tasks.FindAsync(id);
 
             if (task == null)
-                return NotFound();
+            {
+                return NotFound(new
+                {
+                    message = $"Task with ID {id} was not found."
+                });
+            }
 
             _context.Tasks.Remove(task);
 

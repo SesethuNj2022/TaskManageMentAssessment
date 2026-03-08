@@ -6,7 +6,7 @@ export interface Task {
   priority: string
   assigneeId?: number
   createdAt: Date
-    assignee?: {
+  assignee?: {
     id: number;
     name: string;
     email: string;
