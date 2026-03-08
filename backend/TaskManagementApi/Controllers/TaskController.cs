@@ -60,28 +60,27 @@ namespace TaskManagementApi.Controllers
             return Ok(task);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateTask([FromBody]CreateTaskDto dto)
-        {
-            if (string.IsNullOrEmpty(dto.Title))
-                return BadRequest("Title is required");
+     [HttpPost]
+public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
+{
+    if (dto == null)
+        return BadRequest("Invalid request body");
 
-            var task = new TaskItem
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                Priority = dto.Priority,
-                AssigneeId = dto.AssigneeId,
-                Status = TaskStatus.Todo
-            };
+    var task = new TaskItem
+    {
+        Title = dto.Title ?? string.Empty,
+        Description = dto.Description ?? string.Empty,
+        Priority = dto.Priority,
+        AssigneeId = dto.AssigneeId,
+        Status = TaskStatus.Todo
+    };
 
-            _context.Tasks.Add(task);
+    _context.Tasks.Add(task);
 
-            await _context.SaveChangesAsync();
+    await _context.SaveChangesAsync();
 
-            return Ok(task);
-        }
-
+    return Ok(task);
+}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(int id, UpdateTaskDto dto)
         {

@@ -7,13 +7,11 @@
 <div class="filters">
 
 <input
-  type="text"
-  placeholder="Search tasks..."
-  [(ngModel)]="searchText"
->
-
-<button (click)="search()">Search</button>
-
+type="text"
+placeholder="Search tasks..."
+[(ngModel)]="searchText"
+(keyup)="applyFilters()"
+/>
 
 <select [(ngModel)]="statusFilter" (change)="applyFilters()">
 <option value="">All Status</option>
@@ -22,7 +20,6 @@
 <option value="Done">Done</option>
 </select>
 
-
 <select [(ngModel)]="priorityFilter" (change)="applyFilters()">
 <option value="">All Priority</option>
 <option value="Low">Low</option>
@@ -30,27 +27,30 @@
 <option value="High">High</option>
 </select>
 
-
 <select [(ngModel)]="assigneeFilter" (change)="applyFilters()">
-<option value="">All Assignees</option>
-<option *ngFor="let member of members" [value]="member.id">
+<option [ngValue]="null">All Assignees</option>
+
+<option *ngFor="let member of members" [ngValue]="member.id">
 {{member.name}}
 </option>
+
 </select>
+
+<button class="clear-btn" (click)="clearFilters()">
+Clear Filters
+</button>
+
+<button class="create-btn" (click)="openCreateForm()">
++ Create Task
+</button>
 
 </div>
 
 <hr>
 
-<!-- CREATE BUTTON -->
-
-<button (click)="openCreateForm()">Create Task</button>
-
-<hr>
-
 <!-- TASK TABLE -->
 
-<table border="1" width="100%">
+<table>
 
 <thead>
 
@@ -73,19 +73,43 @@
 
 <td>{{task.description}}</td>
 
-<td>{{task.status}}</td>
+<td>
 
-<td>{{task.priority}}</td>
+<span
+class="badge"
+[ngClass]="{
+'status-todo': task.status === 'Todo',
+'status-progress': task.status === 'InProgress',
+'status-done': task.status === 'Done'
+}">
+{{task.status}}
+</span>
 
-<td>{{task.assignee?.name}}</td>
+</td>
 
 <td>
 
-<button (click)="editTask(task)">
+<span
+class="badge"
+[ngClass]="{
+'priority-high': task.priority === 'High',
+'priority-medium': task.priority === 'Medium',
+'priority-low': task.priority === 'Low'
+}">
+{{task.priority}}
+</span>
+
+</td>
+
+<td>{{task.assignee?.name || 'Unassigned'}}</td>
+
+<td>
+
+<button class="edit-btn" (click)="editTask(task)">
 Edit
 </button>
 
-<button (click)="deleteTask(task.id)">
+<button class="delete-btn" (click)="deleteTask(task.id)">
 Delete
 </button>
 
@@ -101,12 +125,12 @@ Delete
 
 <!-- CREATE / EDIT FORM -->
 
-<div *ngIf="taskForm">
+<div *ngIf="taskForm" class="form-container">
 
 <h2 *ngIf="!isEditing">Create Task</h2>
 <h2 *ngIf="isEditing">Edit Task</h2>
 
-<div>
+<div class="form-group">
 
 <label>Title</label>
 
@@ -114,12 +138,11 @@ Delete
 type="text"
 [(ngModel)]="taskForm.title"
 placeholder="Task title"
->
+/>
 
 </div>
 
-
-<div>
+<div class="form-group">
 
 <label>Description</label>
 
@@ -130,8 +153,7 @@ placeholder="Task description"
 
 </div>
 
-
-<div>
+<div class="form-group">
 
 <label>Status</label>
 
@@ -145,8 +167,7 @@ placeholder="Task description"
 
 </div>
 
-
-<div>
+<div class="form-group">
 
 <label>Priority</label>
 
@@ -160,19 +181,15 @@ placeholder="Task description"
 
 </div>
 
-
-<div>
+<div class="form-group">
 
 <label>Assign To</label>
 
 <select [(ngModel)]="taskForm.assigneeId">
 
-<option value="">Unassigned</option>
+<option [ngValue]="null">Unassigned</option>
 
-<option
-*ngFor="let member of members"
-[value]="member.id"
->
+<option *ngFor="let member of members" [ngValue]="member.id">
 {{member.name}}
 </option>
 
@@ -180,20 +197,21 @@ placeholder="Task description"
 
 </div>
 
+<div class="form-actions">
 
-<br>
-
-<button *ngIf="!isEditing" (click)="createTask()">
+<button *ngIf="!isEditing" class="save-btn" (click)="createTask()">
 Save Task
 </button>
 
-<button *ngIf="isEditing" (click)="updateTask()">
+<button *ngIf="isEditing" class="update-btn" (click)="updateTask()">
 Update Task
 </button>
 
-<button (click)="cancelForm()">
+<button class="cancel-btn" (click)="cancelForm()">
 Cancel
 </button>
+
+</div>
 
 </div>
 

@@ -16,13 +16,18 @@ export class TaskListComponent implements OnInit {
   tasks: Task[] = [];
   members: any[] = [];
 
-  searchText = '';
+searchText = '';
+statusFilter = '';
+priorityFilter = '';
+assigneeFilter: number | null = null;
 
-  statusFilter = '';
-  priorityFilter = '';
-  assigneeFilter = '';
-
-  taskForm: any = null;
+ taskForm: any = {
+  title: '',
+  description: '',
+  priority: 'Medium',
+  status: 'Todo',
+  assigneeId: null
+};
 
   isEditing = false;
 
@@ -32,9 +37,13 @@ export class TaskListComponent implements OnInit {
     this.loadTasks();
     this.loadMembers();
   }
-
 loadTasks() {
-  this.taskService.getTasks().subscribe({
+  this.taskService.getTasks(
+    this.searchText,
+    this.statusFilter,
+    this.priorityFilter,
+    this.assigneeFilter
+  ).subscribe({
     next: (data) => {
       this.tasks = data;
     },
@@ -76,19 +85,21 @@ loadMembers() {
     };
 
   }
+createTask() {
 
-  createTask() {
+  const payload = {
+    title: this.taskForm.title,
+    description: this.taskForm.description,
+    priority: this.taskForm.priority,
+    assigneeId: this.taskForm.assigneeId ? Number(this.taskForm.assigneeId) : null
+  };
 
-    this.taskService.createTask(this.taskForm)
-      .subscribe(() => {
+  this.taskService.createTask(payload).subscribe(() => {
+    this.loadTasks();
+    this.resetForm();
+  });
 
-        this.taskForm = null;
-
-        this.loadTasks();
-
-      });
-
-  }
+}
 
   editTask(task: any) {
 
@@ -110,7 +121,17 @@ loadMembers() {
       });
 
   }
+resetForm() {
+  this.taskForm = {
+    title: '',
+    description: '',
+    status: 'Todo',
+    priority: 'Medium',
+    assigneeId: null
+  };
 
+  this.isEditing = false;
+}
   deleteTask(id: number) {
 
     if (!confirm('Delete this task?')) return;

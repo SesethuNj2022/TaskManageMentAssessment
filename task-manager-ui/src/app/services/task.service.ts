@@ -13,12 +13,21 @@ private apiUrl = 'http://localhost:5181/api/tasks';
 constructor(private http: HttpClient) {}
 
 
-getTasks() {
-  return this.http.get<Task[]>(this.apiUrl);
-}
+// getTasks() {
+//   return this.http.get<Task[]>(this.apiUrl);
+// }
+getTasks(search?: string, status?: string, priority?: string, assigneeId?: number | null) {
 
-createTask(task: any) {
-  return this.http.post(this.apiUrl, task);
+  let url = 'http://localhost:5181/api/tasks?';
+
+  if (search) url += `search=${search}&`;
+  if (status) url += `status=${status}&`;
+  if (priority) url += `priority=${priority}&`;
+  if (assigneeId) url += `assigneeId=${assigneeId}&`;
+
+  return this.http.get<any[]>(url);
+}createTask(task: any) {
+  return this.http.post('http://localhost:5181/api/tasks', task);
 }
 
 updateTask(id: number, task: any) {
@@ -29,10 +38,8 @@ deleteTask(id: number) {
   return this.http.delete(`${this.apiUrl}/${id}`);
 }
 
-getMembers(): Observable<any[]> {
-
-return this.http.get<any[]>(`${this.apiUrl}/team-members`);
-
+getMembers() {
+  return this.http.get<any[]>('http://localhost:5181/api/team-members');
 }
 
 }
