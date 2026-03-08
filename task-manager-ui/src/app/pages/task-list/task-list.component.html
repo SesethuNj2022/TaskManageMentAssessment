@@ -1,0 +1,200 @@
+<div class="container">
+
+<h1>Task Manager</h1>
+
+<!-- SEARCH + FILTERS -->
+
+<div class="filters">
+
+<input
+  type="text"
+  placeholder="Search tasks..."
+  [(ngModel)]="searchText"
+>
+
+<button (click)="search()">Search</button>
+
+
+<select [(ngModel)]="statusFilter" (change)="applyFilters()">
+<option value="">All Status</option>
+<option value="Todo">Todo</option>
+<option value="InProgress">In Progress</option>
+<option value="Done">Done</option>
+</select>
+
+
+<select [(ngModel)]="priorityFilter" (change)="applyFilters()">
+<option value="">All Priority</option>
+<option value="Low">Low</option>
+<option value="Medium">Medium</option>
+<option value="High">High</option>
+</select>
+
+
+<select [(ngModel)]="assigneeFilter" (change)="applyFilters()">
+<option value="">All Assignees</option>
+<option *ngFor="let member of members" [value]="member.id">
+{{member.name}}
+</option>
+</select>
+
+</div>
+
+<hr>
+
+<!-- CREATE BUTTON -->
+
+<button (click)="openCreateForm()">Create Task</button>
+
+<hr>
+
+<!-- TASK TABLE -->
+
+<table border="1" width="100%">
+
+<thead>
+
+<tr>
+<th>Title</th>
+<th>Description</th>
+<th>Status</th>
+<th>Priority</th>
+<th>Assignee</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr *ngFor="let task of tasks">
+
+<td>{{task.title}}</td>
+
+<td>{{task.description}}</td>
+
+<td>{{task.status}}</td>
+
+<td>{{task.priority}}</td>
+
+<td>{{task.assignee?.name}}</td>
+
+<td>
+
+<button (click)="editTask(task)">
+Edit
+</button>
+
+<button (click)="deleteTask(task.id)">
+Delete
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<hr>
+
+<!-- CREATE / EDIT FORM -->
+
+<div *ngIf="taskForm">
+
+<h2 *ngIf="!isEditing">Create Task</h2>
+<h2 *ngIf="isEditing">Edit Task</h2>
+
+<div>
+
+<label>Title</label>
+
+<input
+type="text"
+[(ngModel)]="taskForm.title"
+placeholder="Task title"
+>
+
+</div>
+
+
+<div>
+
+<label>Description</label>
+
+<textarea
+[(ngModel)]="taskForm.description"
+placeholder="Task description"
+></textarea>
+
+</div>
+
+
+<div>
+
+<label>Status</label>
+
+<select [(ngModel)]="taskForm.status">
+
+<option value="Todo">Todo</option>
+<option value="InProgress">In Progress</option>
+<option value="Done">Done</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>Priority</label>
+
+<select [(ngModel)]="taskForm.priority">
+
+<option value="Low">Low</option>
+<option value="Medium">Medium</option>
+<option value="High">High</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>Assign To</label>
+
+<select [(ngModel)]="taskForm.assigneeId">
+
+<option value="">Unassigned</option>
+
+<option
+*ngFor="let member of members"
+[value]="member.id"
+>
+{{member.name}}
+</option>
+
+</select>
+
+</div>
+
+
+<br>
+
+<button *ngIf="!isEditing" (click)="createTask()">
+Save Task
+</button>
+
+<button *ngIf="isEditing" (click)="updateTask()">
+Update Task
+</button>
+
+<button (click)="cancelForm()">
+Cancel
+</button>
+
+</div>
+
+</div>
