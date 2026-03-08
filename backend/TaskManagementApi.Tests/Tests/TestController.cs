@@ -35,14 +35,14 @@ namespace TaskManagementApi.Tests
         [Fact]
         public async Task GetTasks_ReturnsAllTasks()
         {
-            // Arrange
+         
             var context = GetDbContext();
             var controller = new TasksController(context);
 
-            // Act
+          
             var result = await controller.GetTasks(null, null, null, null);
 
-            // Assert
+          
             var okResult = Assert.IsType<OkObjectResult>(result);
             var tasks = Assert.IsAssignableFrom<IEnumerable<TaskItem>>(okResult.Value);
 
