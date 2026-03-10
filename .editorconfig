@@ -1,4 +1,11 @@
-[*.cs]
+root = true
 
-# CS8604: Possible null reference argument.
+[*]
+indent_style = space
+indent_size = 4
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[*.cs]
 dotnet_diagnostic.CS8604.severity = warning
